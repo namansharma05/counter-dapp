@@ -3,7 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { Counter } from "../target/types/counter";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { expect } from "chai";
-import { PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 
 describe("counter", () => {
   // Configure the client to use the local cluster.
@@ -24,7 +24,7 @@ describe("counter", () => {
     counterAccountPda = findPda(program.programId, [anchor.utils.bytes.utf8.encode("counter"), adminWallet.publicKey.toBuffer()]);
   })
 
-  it("Is initialized!", async () => {
+  it("should initialize counter for user", async () => {
     const tx = await program.methods.initializeCounter().accounts({
       authority: adminWallet.publicKey,
     }).signers([adminWallet]).rpc();
@@ -33,9 +33,48 @@ describe("counter", () => {
     const counterAccountData = await program.account.counter.fetch(counterAccountPda);
     console.log("  counter authority address: ", counterAccountData.authority.toBase58());
     console.log("  admin wallet address: ", adminWallet.publicKey.toBase58());
+    console.log("  counter account pda: ", counterAccountPda.toBase58());
+    console.log("  count value: ", counterAccountData.count);
 
     expect(counterAccountData.authority.toBase58()).to.equal(adminWallet.publicKey.toBase58());
     expect(counterAccountData.count.toString()).to.equal("0");
+  });
 
+  it("should return error if same user tries to initialize another counter", async () => {
+    try {
+      const tx = await program.methods.initializeCounter().accounts({
+        authority: adminWallet.publicKey,
+      }).signers([adminWallet]).rpc();
+
+      console.log("  transaction signature: ",tx);
+    } catch (error) {
+      console.error("  you have already created a counter");
+      console.error("  logs: ",error.transactionLogs[3]);
+    }
+  });
+
+  it("should increase the value of count by 1", async() => {
+    const tx = await program.methods.incrementCounter().accounts({
+      authority: adminWallet.publicKey,
+    }).signers([adminWallet]).rpc();
+
+    console.log("  transaction signature: ",tx);
+    let counterAccountData = await program.account.counter.fetch(counterAccountPda);
+    console.log("  count value: ", counterAccountData.count);
+    expect(counterAccountData.count.toString()).to.equal("1");
+  });
+
+  it("should return error if another user tries to increment the count", async()=> {
+    const anotherUser = Keypair.generate();
+    try {
+      const tx = await program.methods.incrementCounter().accounts({
+        authority: anotherUser.publicKey,
+      }).signers([adminWallet]).rpc();
+
+      console.log("  transaction signature: ",tx);
+    } catch (error) {
+      console.log("  another user public key: ", anotherUser.publicKey.toBase58());
+      console.error("  error message: ",error.message);
+    }
   });
 });
