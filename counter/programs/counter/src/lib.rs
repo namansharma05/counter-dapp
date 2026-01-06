@@ -1,16 +1,20 @@
 use anchor_lang::prelude::*;
 
+pub mod contexts;
+use contexts::*;
+
+pub mod blueprints;
+
 declare_id!("5qir8KuyVwFcUpNvf8c6K81a9iUN96MUTkCQdxr23R2h");
 
 #[program]
 pub mod counter {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
+    pub fn initialize_counter(ctx: Context<UserCounter>) -> Result<()> {
+        let counter_account = &mut ctx.accounts.counter_account;
+        counter_account.authority = *ctx.accounts.authority.key;
+        counter_account.count = 0;
         Ok(())
     }
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}
