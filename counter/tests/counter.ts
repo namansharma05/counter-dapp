@@ -62,12 +62,45 @@ describe("counter", () => {
     let counterAccountData = await program.account.counter.fetch(counterAccountPda);
     console.log("  count value: ", counterAccountData.count);
     expect(counterAccountData.count.toString()).to.equal("1");
+
+    // this will make the count value equal to 2
+    await program.methods.incrementCounter().accounts({
+      authority: adminWallet.publicKey,
+    }).signers([adminWallet]).rpc();
+    
+    counterAccountData = await program.account.counter.fetch(counterAccountPda);
+    console.log("  count value: ", counterAccountData.count);
   });
 
   it("should return error if another user tries to increment the count", async()=> {
     const anotherUser = Keypair.generate();
     try {
       const tx = await program.methods.incrementCounter().accounts({
+        authority: anotherUser.publicKey,
+      }).signers([adminWallet]).rpc();
+
+      console.log("  transaction signature: ",tx);
+    } catch (error) {
+      console.log("  another user public key: ", anotherUser.publicKey.toBase58());
+      console.error("  error message: ",error.message);
+    }
+  });
+
+  it("should decrease the value of count by 1", async() => {
+    const tx = await program.methods.decrementCounter().accounts({
+      authority: adminWallet.publicKey,
+    }).signers([adminWallet]).rpc();
+
+    console.log("  transaction signature: ",tx);
+    let counterAccountData = await program.account.counter.fetch(counterAccountPda);
+    console.log("  count value: ", counterAccountData.count);
+    expect(counterAccountData.count.toString()).to.equal("1");
+  });
+
+  it("should return error if another user tries to decrement the count", async()=> {
+    const anotherUser = Keypair.generate();
+    try {
+      const tx = await program.methods.decrementCounter().accounts({
         authority: anotherUser.publicKey,
       }).signers([adminWallet]).rpc();
 

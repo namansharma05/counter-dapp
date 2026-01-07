@@ -23,4 +23,10 @@ pub mod counter {
         counter_account.count += 1;
         Ok(())
     }
+
+    pub fn decrement_counter(ctx: Context<Update>) -> Result<()> {
+        let counter_account = &mut ctx.accounts.counter_account;
+        counter_account.count -= 1;
+        Ok(())
+    }
 }
