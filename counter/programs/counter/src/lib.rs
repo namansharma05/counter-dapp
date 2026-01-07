@@ -29,4 +29,8 @@ pub mod counter {
         counter_account.count -= 1;
         Ok(())
     }
+
+    pub fn close_counter(_ctx: Context<Delete>) -> Result<()> {
+        Ok(())
+    }
 }
