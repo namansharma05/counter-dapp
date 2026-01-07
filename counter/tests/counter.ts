@@ -3,7 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { Counter } from "../target/types/counter";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { expect } from "chai";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 describe("counter", () => {
   // Configure the client to use the local cluster.
@@ -67,7 +67,7 @@ describe("counter", () => {
     await program.methods.incrementCounter().accounts({
       authority: adminWallet.publicKey,
     }).signers([adminWallet]).rpc();
-    
+
     counterAccountData = await program.account.counter.fetch(counterAccountPda);
     console.log("  count value: ", counterAccountData.count);
   });
@@ -101,6 +101,37 @@ describe("counter", () => {
     const anotherUser = Keypair.generate();
     try {
       const tx = await program.methods.decrementCounter().accounts({
+        authority: anotherUser.publicKey,
+      }).signers([adminWallet]).rpc();
+
+      console.log("  transaction signature: ",tx);
+    } catch (error) {
+      console.log("  another user public key: ", anotherUser.publicKey.toBase58());
+      console.error("  error message: ",error.message);
+    }
+  });
+
+  it("should close the counter", async() => {
+    let walletBalance = await provider.connection.getBalance(adminWallet.publicKey);
+    console.log("  admin wallet balance before: ",walletBalance/LAMPORTS_PER_SOL);
+    const tx = await program.methods.closeCounter().accounts({
+      authority: adminWallet.publicKey,
+    }).signers([adminWallet]).rpc();
+
+    console.log("  transaction signature: ",tx);
+    walletBalance = await provider.connection.getBalance(adminWallet.publicKey);
+    console.log("  admin wallet balance after: ",walletBalance/LAMPORTS_PER_SOL);
+  });
+
+  it("should return error if another user tries to close the counter", async() => {
+    const anotherUser = Keypair.generate();
+    const tx2 = await program.methods.initializeCounter().accounts({
+      authority: adminWallet.publicKey,
+    }).signers([adminWallet]).rpc();
+
+    console.log("  again initilizing counter transaction signature: ",tx2);
+    try {
+      const tx = await program.methods.closeCounter().accounts({
         authority: anotherUser.publicKey,
       }).signers([adminWallet]).rpc();
 
