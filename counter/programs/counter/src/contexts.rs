@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::blueprints::*;
 
 #[derive(Accounts)]
-pub struct UserCounter<'info> {
+pub struct Create<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
 
@@ -20,7 +20,7 @@ pub struct UserCounter<'info> {
 }
 
 #[derive(Accounts)]
-pub struct Increment<'info> {
+pub struct Update<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
 
