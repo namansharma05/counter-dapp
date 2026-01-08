@@ -17,9 +17,13 @@ import * as anchor from "@coral-xyz/anchor";
 import idl from "../app/idl/counter.json";
 
 // Replace with your program ID
-const PROGRAM_ID = new PublicKey(
-    "5qir8KuyVwFcUpNvf8c6K81a9iUN96MUTkCQdxr23R2h"
-);
+const programId = process.env.NEXT_PUBLIC_PROGRAM_ID;
+
+if (!programId) {
+    throw new Error("NEXT_PUBLIC_PROGRAM_ID is not defined");
+}
+
+const PROGRAM_ID = new PublicKey(programId);
 
 export const Counter = () => {
     const { connection } = useConnection();
@@ -223,11 +227,11 @@ export const Counter = () => {
         }
     };
 
-    useEffect(() => {
-        if (publicKey) {
-            fetchCount();
-        }
-    }, [publicKey]);
+    // useEffect(() => {
+    //     if (publicKey) {
+    //         fetchCount();
+    //     }
+    // }, [publicKey]);
 
     if (!publicKey) {
         return (
