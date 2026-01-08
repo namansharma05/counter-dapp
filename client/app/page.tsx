@@ -6,6 +6,7 @@ import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { useEffect, useState } from "react";
 
 export default function Home() {
     // const programId = new PublicKey(
@@ -13,8 +14,20 @@ export default function Home() {
     // );
 
     // const idlWithAddress = { ...idl, address: programId.toBase58() };
-
+    const [mounted, setMounted] = useState(false);
     const wallet = useAnchorWallet();
+
+    useEffect(() => {
+        setMounted(true); // ✅ Set after first client render
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="h-12 w-48 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+        );
+    }
 
     const getProvider = () => {
         if (!wallet) throw new Error("Connect wallet first");
