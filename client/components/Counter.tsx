@@ -52,7 +52,7 @@ export const Counter = () => {
     const provider = getProvider();
     if (!provider) throw "Provider is null";
 
-    const program = new anchor.Program(idl, provider);
+    const program: any = new anchor.Program(idl as any, provider);
 
     try {
       setLoading(true);
@@ -85,7 +85,7 @@ export const Counter = () => {
     const provider = getProvider();
     if (!provider) throw "Provider is null";
 
-    const program = new anchor.Program(idl, provider);
+    const program: any = new anchor.Program(idl as any, provider);
 
     try {
       setLoading(true);
@@ -122,7 +122,7 @@ export const Counter = () => {
     const provider = getProvider();
     if (!provider) throw "Provider is null";
 
-    const program = new anchor.Program(idl, provider);
+    const program: any = new anchor.Program(idl as any, provider);
 
     try {
       setLoading(true);
@@ -158,7 +158,7 @@ export const Counter = () => {
     const provider = getProvider();
     if (!provider) throw "Provider is null";
 
-    const program = new anchor.Program(idl, provider);
+    const program: any = new anchor.Program(idl as any, provider);
 
     try {
       setLoading(true);
@@ -194,7 +194,7 @@ export const Counter = () => {
     const provider = getProvider();
     if (!provider) throw "Provider is null";
 
-    const program = new anchor.Program(idl, provider);
+    const program: any = new anchor.Program(idl as any, provider);
 
     try {
       setLoading(true);
